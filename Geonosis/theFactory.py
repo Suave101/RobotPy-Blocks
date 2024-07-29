@@ -1,6 +1,5 @@
 import inspect
 import json
-import sys
 
 import wpilib
 
@@ -14,11 +13,26 @@ def recursivelyMembersForClasses(library):
         if inspect.isclass(member[1]) and str(type(member[1])) != "<class 'type'>":
             containsSubclasses = True
             # Is a Class | Subclass Name | Map of Subclass
-            dataMap.append([True, member[0], recursivelyMembersForClasses(member[1])])
+            dataMap.append([
+                True,
+                member[0],
+                {
+                    "Docstring": inspect.getdoc(member[1]),
+                    "Variables": str(member[1].__dict__.items())
+                },
+                recursivelyMembersForClasses(member[1])
+            ])
         else:
             if member[0][0] != "_":
                 try:
-                    dataMap.append([False, member[0], {"Args": inspect.getfullargspec(member[1]).args, "Defaults": inspect.getfullargspec(member[1]).defaults}])
+                    dataMap.append(
+                        [False, member[0],
+                         {
+                             "Args": inspect.getfullargspec(member[1]).args,
+                             "Defaults": inspect.getfullargspec(member[1]).defaults,
+                             "Docstring": inspect.getdoc(member[1])
+                         }
+                         ])
                 except:
                     pass
     if not dataMap:
@@ -26,5 +40,6 @@ def recursivelyMembersForClasses(library):
     else:
         return dataMap
 
-
-print(json.dumps(recursivelyMembersForClasses(wpilib), indent=5))
+file = open("data.json", "w")
+file.write(json.dumps(recursivelyMembersForClasses(wpilib), indent=5))
+file.close()
