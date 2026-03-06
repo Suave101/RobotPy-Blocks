@@ -12,7 +12,6 @@ def recursivelyMembersForClasses(library):
     for member in libraryMemberList:
         # If item in class is a class add to list of subclasses
         if inspect.isclass(member[1]) and str(type(member[1])) != "<class 'type'>":
-            containsSubclasses = True
             # Is a Class | Subclass Name | Map of Subclass
             dataMap.append([True, member[0], recursivelyMembersForClasses(member[1])])
         else:
